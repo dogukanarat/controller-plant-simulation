@@ -1,0 +1,7 @@
+set(PROJECTNAME ${CMAKE_PROJECT_NAME})
+
+file(GLOB_RECURSE SOURCES LIST_DIRECTORIES true *.hpp *.cpp)
+
+set(SOURCES ${SOURCES})
+
+add_library(${PROJECTNAME}_lib_shared_memory STATIC ${SOURCES})

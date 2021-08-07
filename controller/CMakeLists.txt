@@ -1,9 +1,9 @@
-set(BINARY ${CMAKE_PROJECT_NAME})
+set(PROJECTNAME ${CMAKE_PROJECT_NAME})
 
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES true *.hpp *.cpp)
 
 set(SOURCES ${SOURCES})
 
-add_executable(${BINARY}_controller ${SOURCES})
+add_executable(${PROJECTNAME}_controller ${SOURCES})
 
-#add_library(${BINARY}_controller_lib STATIC ${SOURCES})
+target_link_libraries(${PROJECTNAME}_controller PRIVATE ${PROJECTNAME}_lib_shared_memory)

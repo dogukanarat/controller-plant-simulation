@@ -17,7 +17,10 @@ include_directories(plant)
 
 add_subdirectory(controller)
 add_subdirectory(plant)
-#add_subdirectory(tst)
+
+include_directories(lib/shared_memory)
+link_directories(lib/shared_memory)
+add_subdirectory(lib/shared_memory)
 add_subdirectory(lib/googletest)
 
 
