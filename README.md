@@ -3,7 +3,6 @@
 Cpp Project Template
 
 
-
 ## How to Intall google test
 
 You need to follow the instructions stated below link

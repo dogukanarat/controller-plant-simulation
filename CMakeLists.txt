@@ -12,14 +12,12 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 project(web_server_project)
 
-ADD_CUSTOM_TARGET(run COMMAND web_server_project
-  COMMENT "Run with ${CMAKE_BUILD_TYPE} configuration"
-  )
+include_directories(controller)
+include_directories(plant)
 
-include_directories(src)
-
-add_subdirectory(src)
-add_subdirectory(tst)
+add_subdirectory(controller)
+add_subdirectory(plant)
+#add_subdirectory(tst)
 add_subdirectory(lib/googletest)
 
 
