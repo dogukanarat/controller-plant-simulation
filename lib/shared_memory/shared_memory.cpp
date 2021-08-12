@@ -17,9 +17,9 @@ static int get_shared_block( char *filename, int size )
     if( access( filename, F_OK ) == 0 ) {
         // file exists
     } else {
-        FILE * fPtr;
-        fPtr = fopen(filename, "w");
-        fclose(fPtr);
+        FILE * p_file;
+        p_file = fopen(filename, "w");
+        fclose(p_file);
     }
 
     key = ftok(filename, 0);

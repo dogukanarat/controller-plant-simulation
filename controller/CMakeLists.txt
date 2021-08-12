@@ -6,4 +6,10 @@ set(SOURCES ${SOURCES})
 
 add_executable(${PROJECTNAME}_controller ${SOURCES})
 
-target_link_libraries(${PROJECTNAME}_controller PRIVATE ${PROJECTNAME}_lib_shared_memory)
+target_link_libraries(
+    ${PROJECTNAME}_controller LINK_PUBLIC ${PROJECTNAME}_lib_shared_memory
+    )
+
+target_link_libraries(
+    ${PROJECTNAME}_controller LINK_PUBLIC ${PROJECTNAME}_lib_osal
+    )

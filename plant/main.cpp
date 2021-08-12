@@ -4,34 +4,37 @@
 #include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "../lib/shared_memory/shared_memory.hpp"
+#include "shared_memory.hpp"
 
 using namespace std;
+
+data_frame_t *frame_st = NULL;
 
 void *server( void *arg )
 {
 	cout << "Plant server has been started!" << endl;
     flush(cout);
 
-    int counter = 0;
-    char buffer[10];
+    
 
     while (1)
     {
-        sleep(1);
+        usleep(10);
 
         char *block = attach_memory_block(FILENAME, BLOCK_SIZE);
 
         if( block != NULL )
         {
-            cout << "Plant is writing: " << counter << endl;
-            flush(cout);
-
-            *block = (int)( counter );
+            memcpy(block, &frame_st, BLOCK_SIZE);
 
             detach_memory_block( block );
 
-            counter++;
+            cout << "System Time: " << frame_st->plant.system_time_u32 << endl;
+            cout << "Temperature: " << frame_st->plant.temperature_s16 << endl;
+            cout << "---------------------------------------------------" << endl;
+            flush(cout);
+
+            
         }
         else
         {
@@ -51,6 +54,11 @@ void *client( void *arg )
     
     while (1)
     {
+        usleep(1000);
+        if( frame_st != NULL )
+        {
+            frame_st->plant.temperature_s16 += 1;
+        } else {}
     }
     
     return 0;
