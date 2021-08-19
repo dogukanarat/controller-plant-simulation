@@ -1,10 +1,10 @@
-#include<iostream>
-#include "pthread.h"
+#include <iostream>
+#include <pthread.h>
 #include <unistd.h>
-#include "string.h"
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "shared_memory.hpp"
+#include <shared_memory.hpp>
 
 using namespace std;
 
@@ -14,8 +14,6 @@ void *server( void *arg )
 {
 	cout << "Plant server has been started!" << endl;
     flush(cout);
-
-    
 
     while (1)
     {

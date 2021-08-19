@@ -6,6 +6,8 @@ set(SOURCES ${SOURCES})
 
 add_executable(${PROJECTNAME}_controller ${SOURCES})
 
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+
 target_link_libraries(
     ${PROJECTNAME}_controller LINK_PUBLIC ${PROJECTNAME}_lib_shared_memory
     )
@@ -13,3 +15,7 @@ target_link_libraries(
 target_link_libraries(
     ${PROJECTNAME}_controller LINK_PUBLIC ${PROJECTNAME}_lib_osal
     )
+
+target_link_libraries(
+    ${PROJECTNAME}_controller LINK_PUBLIC Eigen3::Eigen
+)
