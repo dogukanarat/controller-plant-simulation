@@ -4,6 +4,14 @@
         "iostream": "cpp",
         "ostream": "cpp",
         "*.tcc": "cpp",
-        "dense": "cpp"
+        "dense": "cpp",
+        "typeinfo": "cpp",
+        "array": "cpp",
+        "iterator": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "vector": "cpp",
+        "new": "cpp",
+        "system_error": "cpp"
     }
 }

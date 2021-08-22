@@ -12,12 +12,12 @@ if [ $1 = 'run' ]
     #run project
     if [ $2 = 'plant' ]
         then
-        cd build && cd plant && ./web_server_project_plant && cd .. / cd ..
+        cd build && cd plant && ./plant && cd .. / cd ..
     fi
     
     if [ $2 = 'controller' ]
         then
-        cd build && cd controller && ./web_server_project_controller && cd .. / cd ..
+        cd build && cd controller && ./controller && cd .. / cd ..
     fi
 fi
 

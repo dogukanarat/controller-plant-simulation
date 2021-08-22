@@ -1,21 +1,19 @@
-set(PROJECTNAME ${CMAKE_PROJECT_NAME})
-
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES true *.hpp *.cpp)
 
 set(SOURCES ${SOURCES})
 
-add_executable(${PROJECTNAME}_controller ${SOURCES})
+add_executable(controller ${SOURCES})
 
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 target_link_libraries(
-    ${PROJECTNAME}_controller LINK_PUBLIC ${PROJECTNAME}_lib_shared_memory
+    controller LINK_PUBLIC needmon
+)
+
+target_link_libraries(
+    controller LINK_PUBLIC osal
     )
 
 target_link_libraries(
-    ${PROJECTNAME}_controller LINK_PUBLIC ${PROJECTNAME}_lib_osal
-    )
-
-target_link_libraries(
-    ${PROJECTNAME}_controller LINK_PUBLIC Eigen3::Eigen
+    controller LINK_PUBLIC Eigen3::Eigen
 )
