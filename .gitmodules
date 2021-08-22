@@ -1,0 +1,6 @@
+[submodule "lib/needmon"]
+	path = lib/needmon
+	url = https://github.com/dogukanarat/needmon.git
+[submodule "lib/osal"]
+	path = lib/osal
+	url = https://github.com/dogukanarat/osal.git
