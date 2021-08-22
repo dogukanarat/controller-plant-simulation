@@ -4,7 +4,6 @@
 #include "os_memory.hpp"
 #include "os_socket.hpp"
 #include "os_stream.hpp"
-#include <iostream>
 #include <Eigen/Dense>
 #include <messageframe.hpp>
 
@@ -67,9 +66,9 @@ void *server( void *arg )
         uint8_t  messageID = 0;
         message->GetMessageID( messageID );
 
-        printf("[SERVER] MessageID: %d \n", messageID );
-        printf("[SERVER] Data1: %X \n", message1Server.data1 );
-        printf("[SERVER] Data1: %X \n", message1Server.data2 );
+        OS_print("[SERVER] MessageID: %d \n", messageID );
+        OS_print("[SERVER] Data1: %X \n", message1Server.data1 );
+        OS_print("[SERVER] Data1: %X \n", message1Server.data2 );
 
         OS_flush();
 
