@@ -20,8 +20,8 @@ include_directories(plant)
 
 add_subdirectory(controller)
 add_subdirectory(plant)
+
 add_subdirectory(lib/googletest)
-add_subdirectory(lib/shared_memory)
 add_subdirectory(lib/osal)
 add_subdirectory(lib/needmon)
 
