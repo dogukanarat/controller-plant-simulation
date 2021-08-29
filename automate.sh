@@ -3,7 +3,9 @@
 if [ $1 = 'build' ]
     then
     #build binaries
-    rm -f -r build && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" && make && cd ..
+    export CC=/usr/bin/clang
+    export CXX=/usr/bin/clang++
+    rm -f -r build && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug -G Ninja && ninja && cd ..
     
 fi
 

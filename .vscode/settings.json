@@ -1,17 +1,4 @@
 {
-    "cmake.configureOnOpen": false,
-    "files.associations": {
-        "iostream": "cpp",
-        "ostream": "cpp",
-        "*.tcc": "cpp",
-        "dense": "cpp",
-        "typeinfo": "cpp",
-        "array": "cpp",
-        "iterator": "cpp",
-        "string": "cpp",
-        "string_view": "cpp",
-        "vector": "cpp",
-        "new": "cpp",
-        "system_error": "cpp"
-    }
+    "cmake.configureOnOpen": true,
+    "C_Cpp.errorSquiggles": "Disabled",
 }

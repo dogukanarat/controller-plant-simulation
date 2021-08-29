@@ -1,21 +1,4 @@
-#include "os_stream.hpp"
-#include "os_thread.hpp"
-#include "os_timer.hpp"
-#include "os_memory.hpp"
-#include "os_socket.hpp"
-#include "os_stream.hpp"
-#include <Eigen/Dense>
-#include <messageframe.hpp>
-
-#define UNUSED(x) (void)(x)
-
-typedef struct
-{
-    uint16_t data1;
-    uint8_t  data2;
-} message_id_1_t;
-
-message_id_1_t message1Server = { .data1 = 0, .data2 = 0 };
+#include "main.h"
 
 void *server( void *arg )
 {
@@ -33,7 +16,7 @@ void *server( void *arg )
     OS_socket_length_t server_socklen_st = sizeof(*p_server_socket_address_in_st);
     OS_socket_length_t client_socklen_st = sizeof(*p_client_socket_address_in_st);
 
-
+    
     if( OS_bind( server_socket_int, (OS_socket_address_t*)p_server_socket_address_in_st, server_socklen_st) < 0 )
     {
         OS_display("[ERROR] Bind error!");
@@ -43,8 +26,6 @@ void *server( void *arg )
     {
         OS_display("[ERROR] Listen error!");
     }
-
-    Needmon::MessageFrame *message = new Needmon::MessageFrame();
 
     uint8_t messageBuffer[ Needmon::MESSAGE_FRAME_SIZE ] = {0};
 
@@ -58,20 +39,6 @@ void *server( void *arg )
 
         OS_close( client_socket_int );
 
-        message->Parse( messageBuffer );
-
-        message->Read( message1Server.data1 );
-        message->Read( message1Server.data2 );
-
-        uint8_t  messageID = 0;
-        message->GetMessageID( messageID );
-
-        OS_print("[SERVER] MessageID: %d \n", messageID );
-        OS_print("[SERVER] Data1: %X \n", message1Server.data1 );
-        OS_print("[SERVER] Data1: %X \n", message1Server.data2 );
-
-        OS_flush();
-
         OS_wait_us(1000000);
 
     }
@@ -79,14 +46,9 @@ void *server( void *arg )
     return 0;
 }
 
-message_id_1_t message1Client = { .data1 = 0, .data2 = 0 };
-
 void *client( void *arg )
 {
     UNUSED( arg );
-
-    message1Client.data1 = 0x1234;
-    message1Client.data2 = 0x56;
 
     OS_wait_us(5000000);
 
@@ -114,22 +76,7 @@ void *client( void *arg )
         OS_display("[CLIENT] Connection error!");
     }
 
-    
-
-    Needmon::MessageFrame *message = new Needmon::MessageFrame();
-
-    /** Message Definition */
-    
-    message->Write( message1Client.data1 );
-    message->Write( message1Client.data2 );
-    
-    uint8_t  messageID = 55;
-    message->SetMessageID( messageID );
-
-    /** Message Definition End */
-
     uint8_t messageBuffer[ Needmon::MESSAGE_FRAME_SIZE ];
-    message->Serialize( messageBuffer );
 
     while( true )
     {
@@ -144,7 +91,7 @@ void *client( void *arg )
 
 int main()
 {
-    OS_display( "Controller has been started!" );
+    OS_display("[PROCESS] Controller has been started!");
 
     /**
      * @brief 
