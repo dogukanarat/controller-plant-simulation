@@ -12,7 +12,7 @@ Periodic::~Periodic()
     
 }
 
-void Periodic::Encode(Needmon::MessageFrame &frame)
+void Periodic::Encode(Needmon::Frame &frame)
 {
     frame.Write( Data.data1 );
     frame.Write( Data.data2 );
@@ -20,7 +20,7 @@ void Periodic::Encode(Needmon::MessageFrame &frame)
     frame.Write( Data.data4 );
 }
 
-void Periodic::Decode(Needmon::MessageFrame &frame)
+void Periodic::Decode(Needmon::Frame &frame)
 {
     frame.Read( Data.data1 );
     frame.Read( Data.data2 );

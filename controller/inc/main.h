@@ -8,9 +8,8 @@
 #include "os_socket.h"
 #include "os_stream.h"
 #include <Eigen/Dense>
-#include "messageframe.h"
+#include "frame.h"
 #include "generic.h"
 #include "packets.h"
-#include "databuffer.h"
 
 #endif

@@ -2,7 +2,7 @@
 #define _COMMON_COMMUNICATION_H
 
 #include "stdint.h"
-#include "messageframe.h"
+#include "frame.h"
 #include "packet.h"
 #include "consts.h"
 
@@ -17,7 +17,7 @@ namespace Packets
         Periodic();
         ~Periodic();
         
-        struct 
+        struct DataStruct
         {
             uint32_t  data1;
             uint16_t  data2;
@@ -25,8 +25,8 @@ namespace Packets
             float64_t data4; 
         } Data;
 
-        virtual void Encode(Needmon::MessageFrame &frame);
-        virtual void Decode(Needmon::MessageFrame &frame);
+        virtual void Encode(Needmon::Frame &frame);
+        virtual void Decode(Needmon::Frame &frame);
     };
 
 }

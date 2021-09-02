@@ -4,8 +4,8 @@ void *server( void *arg )
 {
     UNUSED( arg );
 
-    Needmon::DataBuffer messageBuffer;
-    Needmon::MessageFrame messageFrame;
+    Needmon::Buffer messageBuffer;
+    Needmon::Frame messageFrame;
     Packets::Periodic periodicPacket;
 
     OS_display("[SERVER] Controller server has been started! ");
@@ -37,7 +37,7 @@ void *server( void *arg )
 
         client_socket_int = OS_accept( server_socket_int, (OS_socket_address_t*)p_client_socket_address_in_st, &client_socklen_st );
 
-        OS_read( client_socket_int, messageBuffer.buffer, Needmon::MESSAGE_FRAME_SIZE);
+        OS_read( client_socket_int, messageBuffer.GetBuffer(), Needmon::FRAME_SIZE);
 
         messageFrame.Parse( messageBuffer );
         periodicPacket.Decode( messageFrame );
@@ -58,8 +58,8 @@ void *client( void *arg )
 {
     UNUSED( arg );
 
-    Needmon::DataBuffer messageBuffer;
-    Needmon::MessageFrame messageFrame;
+    Needmon::Buffer messageBuffer;
+    Needmon::Frame messageFrame;
     Packets::Periodic periodicPacket;
 
     periodicPacket.Data.data1 = 0x23;
@@ -94,7 +94,7 @@ void *client( void *arg )
 
     while( true )
     {
-        OS_write(socket_int, messageBuffer.buffer, Needmon::MESSAGE_FRAME_SIZE );
+        OS_write(socket_int, messageBuffer.GetBuffer(), Needmon::FRAME_SIZE );
 
         OS_wait_us(1000000);
        
