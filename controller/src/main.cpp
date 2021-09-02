@@ -4,6 +4,10 @@ void *server( void *arg )
 {
     UNUSED( arg );
 
+    Needmon::DataBuffer messageBuffer;
+    Needmon::MessageFrame messageFrame;
+    Packets::Periodic periodicPacket;
+
     OS_display("[SERVER] Controller server has been started! ");
 
     const uint16_t port_number_u16     = 5001;
@@ -27,15 +31,19 @@ void *server( void *arg )
         OS_display("[ERROR] Listen error!");
     }
 
-    uint8_t messageBuffer[ Needmon::MESSAGE_FRAME_SIZE ] = {0};
-
     while( true )
     {
         OS_display("[SERVER] Server in the loop!");
 
         client_socket_int = OS_accept( server_socket_int, (OS_socket_address_t*)p_client_socket_address_in_st, &client_socklen_st );
 
-        OS_read( client_socket_int, messageBuffer, Needmon::MESSAGE_FRAME_SIZE);
+        OS_read( client_socket_int, messageBuffer.buffer, Needmon::MESSAGE_FRAME_SIZE);
+
+        messageFrame.Parse( messageBuffer );
+        periodicPacket.Decode( messageFrame );
+
+        OS_print("[CLIENT] Received message: 0x%X \n", periodicPacket.Data.data1);
+        
 
         OS_close( client_socket_int );
 
@@ -50,11 +58,13 @@ void *client( void *arg )
 {
     UNUSED( arg );
 
-    Needmon::DataBuffer *messageBuffer = new Needmon::DataBuffer();
+    Needmon::DataBuffer messageBuffer;
+    Needmon::MessageFrame messageFrame;
+    Packets::Periodic periodicPacket;
 
-    Needmon::MessageFrame *messsageFrame = new Needmon::MessageFrame();
-
-    Packets::Periodic *periodicPacket = new Packets::Periodic();
+    periodicPacket.Data.data1 = 0x23;
+    periodicPacket.Encode( messageFrame );
+    messageFrame.Serialize( messageBuffer );
 
     OS_wait_us(5000000);
 
@@ -82,11 +92,9 @@ void *client( void *arg )
         OS_display("[CLIENT] Connection error!");
     }
 
-    Needmon::DataBuffer *dataBuffer = new Needmon::DataBuffer();
-
     while( true )
     {
-        OS_write(socket_int, dataBuffer->buffer, Needmon::MESSAGE_FRAME_SIZE );
+        OS_write(socket_int, messageBuffer.buffer, Needmon::MESSAGE_FRAME_SIZE );
 
         OS_wait_us(1000000);
        
