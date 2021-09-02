@@ -25,8 +25,8 @@ namespace Packets
             float64_t data4; 
         } Data;
 
-        void Encode(Needmon::MessageFrame &frame);
-        void Decode(Needmon::MessageFrame &frame);
+        virtual void Encode(Needmon::MessageFrame &frame);
+        virtual void Decode(Needmon::MessageFrame &frame);
     };
 
 }

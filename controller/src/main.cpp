@@ -50,11 +50,11 @@ void *client( void *arg )
 {
     UNUSED( arg );
 
-    // Needmon::DataBuffer *messageBuffer = new Needmon::DataBuffer();
+    Needmon::DataBuffer *messageBuffer = new Needmon::DataBuffer();
 
-    // Needmon::MessageFrame *messsageFrame = new Needmon::MessageFrame();
+    Needmon::MessageFrame *messsageFrame = new Needmon::MessageFrame();
 
-    // Packets::Periodic *periodicPacket = new Packets::Periodic();
+    Packets::Periodic *periodicPacket = new Packets::Periodic();
 
     OS_wait_us(5000000);
 
