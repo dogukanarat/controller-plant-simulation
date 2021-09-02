@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _CONTROLLER_MAIN_H
+#define _CONTROLLER_MAIN_H
 
 #include "os_stream.h"
 #include "os_thread.h"
@@ -9,4 +10,7 @@
 #include <Eigen/Dense>
 #include "messageframe.h"
 #include "generic.h"
-#include "communication.h"
+#include "packets.h"
+#include "databuffer.h"
+
+#endif

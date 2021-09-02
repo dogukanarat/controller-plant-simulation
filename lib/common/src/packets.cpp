@@ -1,8 +1,18 @@
-#include "communication.h"
+#include "packets.h"
 
-using namespace Communication;
+using namespace Packets;
 
-void Periodic::Serialize(Needmon::MessageFrame &frame)
+Periodic::Periodic()
+{
+
+}
+
+Periodic::~Periodic()
+{
+    
+}
+
+void Periodic::Decode(Needmon::MessageFrame &frame)
 {
     frame.Write( Data.data1 );
     frame.Write( Data.data2 );
@@ -10,7 +20,7 @@ void Periodic::Serialize(Needmon::MessageFrame &frame)
     frame.Write( Data.data4 );
 }
 
-void Periodic::Parse(Needmon::MessageFrame &frame)
+void Periodic::Encode(Needmon::MessageFrame &frame)
 {
     frame.Read( Data.data1 );
     frame.Read( Data.data2 );

@@ -50,6 +50,12 @@ void *client( void *arg )
 {
     UNUSED( arg );
 
+    // Needmon::DataBuffer *messageBuffer = new Needmon::DataBuffer();
+
+    // Needmon::MessageFrame *messsageFrame = new Needmon::MessageFrame();
+
+    // Packets::Periodic *periodicPacket = new Packets::Periodic();
+
     OS_wait_us(5000000);
 
     OS_display("[CLIENT] Controller client has been started! ");
@@ -76,11 +82,11 @@ void *client( void *arg )
         OS_display("[CLIENT] Connection error!");
     }
 
-    uint8_t messageBuffer[ Needmon::MESSAGE_FRAME_SIZE ];
+    Needmon::DataBuffer *dataBuffer = new Needmon::DataBuffer();
 
     while( true )
     {
-        OS_write(socket_int, messageBuffer, Needmon::MESSAGE_FRAME_SIZE );
+        OS_write(socket_int, dataBuffer->buffer, Needmon::MESSAGE_FRAME_SIZE );
 
         OS_wait_us(1000000);
        

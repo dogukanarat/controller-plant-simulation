@@ -1,6 +1,7 @@
-#ifndef _COMMON_GENERIC_HPP
-#define _COMMON_GENERIC_HPP
+#ifndef _COMMON_GENERIC_H
+#define _COMMON_GENERIC_H
 
 #define UNUSED(x) (void)(x)
+
 
 #endif
