@@ -1,6 +1,13 @@
 #include "main.h"
+#include "network.h"
 
 using namespace OSAL;
+
+void receiveHandler(uint8_t* buffer, uint32_t size)
+{
+    OS::print("[HANDLER] Data size: %d\n", size);
+    OS::print("[HANDLER] Data 1: 0x%X\n", buffer[0]);
+}
 
 void *server( void *arg )
 {
@@ -12,46 +19,14 @@ void *server( void *arg )
 
     OS::display("[SERVER] Controller server has been started! ");
 
-    const uint16_t port_number_u16     = 5001;
-    int            server_socket_int   = Socket::_socketStream();
-    int            client_socket_int   = 0;
+    Needmon::Ethernet* insTcp         = new Needmon::TCP("127.0.0.1", 5001);
+    Needmon::Communication* insServer = new Needmon::Server(insTcp);
 
-    Socket::address_in_t* p_server_socket_address_in_st = Socket::address_in_init( port_number_u16 );
-    Socket::address_in_t* p_client_socket_address_in_st = (Socket::address_in_t*)OS::memAllocate( sizeof(Socket::address_in_t) );
+    insServer->SetHandler(receiveHandler);
 
-    Socket::length_t server_socklen_st = sizeof(*p_server_socket_address_in_st);
-    Socket::length_t client_socklen_st = sizeof(*p_client_socket_address_in_st);
+    insServer->Connect();
 
-    
-    if( Socket::_bind( server_socket_int, (Socket::address_t*)p_server_socket_address_in_st, server_socklen_st) < 0 )
-    {
-        OS::display("[ERROR] Bind error!");
-    }
-
-    if( Socket::_listen( server_socket_int) < 0 )
-    {
-        OS::display("[ERROR] Listen error!");
-    }
-
-    while( true )
-    {
-        OS::display("[SERVER] Server in the loop!");
-
-        client_socket_int = Socket::_accept( server_socket_int, (Socket::address_t*)p_client_socket_address_in_st, &client_socklen_st );
-
-        Socket::_read( client_socket_int, messageBuffer.GetBuffer(), Needmon::FRAME_SIZE);
-
-        messageFrame.Parse( messageBuffer );
-        periodicPacket.Decode( messageFrame );
-
-        OS::print("[CLIENT] Received message: 0x%X \n", periodicPacket.Data.data1);
-        
-
-        Socket::_close( client_socket_int );
-
-        OS::waitUs(1000000);
-
-    }
+    insServer->Process();
     
     return 0;
 }
@@ -72,36 +47,15 @@ void *client( void *arg )
 
     OS::display("[CLIENT] Controller client has been started! ");
 
-    const uint16_t port_number_u16     = 5001;
+    Needmon::Ethernet* insTcp         = new Needmon::TCP("127.0.0.1", 5001);
+    Needmon::Communication* insClient = new Needmon::Client(insTcp);
 
-    Socket::address_in_t*   p_server_socket_address_in_st;
-    Socket::host_t*         p_host_st             = (Socket::host_t*)(gethostbyname("127.0.0.1"));
-    int                     socket_int            = Socket::_socketStream();
+    //insClient->SetHandler(receiveHandler);
 
-    OS::display("[CLIENT] Client socket is created!");
+    insClient->Connect();
 
-    if( p_host_st == NULL )
-    {
-        OS::display("[CLIENT] No such host!");
-    }
+    insClient->Process();
 
-    p_server_socket_address_in_st = Socket::address_in_init_by_name( p_host_st,  port_number_u16 );
-
-    OS::display("[CLIENT] Client socket is initialized!");
-
-    if( Socket::_connect( socket_int, p_server_socket_address_in_st) < 0 )
-    {
-        OS::display("[CLIENT] Connection error!");
-    }
-
-    while( true )
-    {
-        Socket::_write(socket_int, messageBuffer.GetBuffer(), Needmon::FRAME_SIZE );
-
-        OS::waitUs(1000000);
-       
-    }
-    
     return 0;
 }
 
