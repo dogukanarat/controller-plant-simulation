@@ -11,12 +11,9 @@ void *client( void *arg )
     Needmon::Frame messageFrame;
     Packets::Periodic periodicPacket;
 
-    OS::waitUs(5000000);
-
     OS::display("[CLIENT] Controller client has been started! ");
 
     Needmon::Ethernet* insTcp         = new Needmon::TCP("127.0.0.1", 5001);
-    OS::print("[CLIENT] Creating client object...\n");
     Needmon::Communication* insClient = new Needmon::Client(insTcp);
 
     Needmon::ErrorNo errorNo = true;
@@ -27,26 +24,15 @@ void *client( void *arg )
 
     while( errorNo > 0 )
     {
-        OS::display("[CLIENT] Data is being preparing!");
-
-        periodicPacket.Data.data1 = 0x23;
-        OS::display("[CLIENT] Data is prepared!");
+        periodicPacket.Data.data1 = periodicPacket.Data.data1 + 1;
 
         periodicPacket.Encode( messageFrame );
-        OS::display("[CLIENT] Message is encoded!");
-
-        if( counter == 14 )
-        {
-            counter = 14;
-        }
 
         messageFrame.Serialize( messageBuffer );
-        OS::display("[CLIENT] Message is serialized!");
 
         errorNo = insClient->Write(messageBuffer);
-        OS::print("[CLIENT] Message is sent -> Message No: %d \n", counter++);
 
-
+        OS::print("[CLIENT] Message is sent | Message : %d \n", periodicPacket.Data.data1);
 
         OS::waitUs(500000);
     }
@@ -58,9 +44,11 @@ void *controller( void *arg )
 {
     UNUSED( arg );
 
+    uint32_t aliveCounter = 0;
+
     while( true )
     {
-        //OS::display("[CONTROLLER] Controller thread is worked!");
+        OS::print("[CONTROLLER] Another Thread Alive Counter : %d\n", aliveCounter++);
         OS::waitUs(500000);
     }
 

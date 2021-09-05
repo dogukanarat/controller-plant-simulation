@@ -14,7 +14,7 @@ Periodic::~Periodic()
 
 void Periodic::Encode(Needmon::Frame &frame)
 {
-    frame.Reset();
+    frame.EncodeReset();
     
     frame.Write( Data.data1 );
     frame.Write( Data.data2 );
@@ -24,6 +24,8 @@ void Periodic::Encode(Needmon::Frame &frame)
 
 void Periodic::Decode(Needmon::Frame &frame)
 {
+    frame.DecodeReset();
+
     frame.Read( Data.data1 );
     frame.Read( Data.data2 );
     frame.Read( Data.data3 );

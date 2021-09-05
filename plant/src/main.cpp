@@ -31,10 +31,15 @@ void *server( void *arg )
     {
         errorNo = insServer->Read(messageBuffer);
 
-        messageFrame.Parse(messageBuffer);
-        periodicPacket.Decode(messageFrame);
+        if( errorNo == true )
+        {
+            messageFrame.Parse(messageBuffer);
+            periodicPacket.Decode(messageFrame);
 
-        OS::print("[SERVER] Cycle %d -> Data 1: 0x%X\n", cycle++, periodicPacket.Data.data1 );
+            OS::print("[SERVER] Message is received | Message: %d\n", periodicPacket.Data.data1 );
+        }
+
+
     }
 
     return 0;
@@ -48,7 +53,7 @@ void *plant( void *arg )
 
     while( true )
     {
-        OS::print("[PLANT] Plant thread is worked! Alive Counter : %d\n", aliveCounter++);
+        OS::print("[PLANT] Another Thread Alive Counter : %d\n", aliveCounter++);
         OS::waitUs(500000);
     }
 
