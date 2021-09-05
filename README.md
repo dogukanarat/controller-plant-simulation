@@ -1,7 +1,6 @@
-# Little Puffin Project
+# Controller-Plant-Simulation
 
-Cpp Project Template
-
+This cpp project aims to test controller applications with their plant which runs in another process. Also, the project is targeting to present a library for IPC with fixed message structures.
 
 ## How to Intall google test
 
@@ -13,7 +12,11 @@ https://github.com/google/googletest/blob/master/googletest/README.md
 
 ```shell
 mkdir build
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles"
+./automate.sh build
+./automate.sh run plant
+```
+
+```another shell
+./automate.sh run controller
 ```
 
