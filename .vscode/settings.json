@@ -1,8 +1,0 @@
-{
-    "cmake.configureOnOpen": true,
-    "C_Cpp.errorSquiggles": "Disabled",
-    "files.associations": {
-        "ostream": "cpp",
-        "__locale": "cpp"
-    },
-}
