@@ -45,18 +45,34 @@ void *server( void *arg )
     return 0;
 }
 
+#include <chrono>
+#include <thread>
+#include <numeric>
+#include <iostream>
+
 void *plant( void *arg )
 {
     UNUSED( arg );
+
+    OS::TimePoint currentStartTime{};
+    OS::TimePoint nextStartTime{};
+
+    const OS::MilliSecond intervalMillis{1000};
 
     uint32_t aliveCounter = 0;
 
     while( true )
     {
+        currentStartTime = OS::Now();
+
         printMutex.Lock();
         OS::print("[PLANT] Alive Counter: %d\n", aliveCounter++);
         printMutex.Unlock();
-        OS::waitUs(50000);
+
+        nextStartTime = currentStartTime + intervalMillis;
+
+        OS::SleepUntil( nextStartTime );
+
     }
 
     return 0;
