@@ -1,5 +1,4 @@
 #include "main.h"
-#include "network.h"
 
 using namespace OSAL;
 
@@ -45,11 +44,6 @@ void *server( void *arg )
     return 0;
 }
 
-#include <chrono>
-#include <thread>
-#include <numeric>
-#include <iostream>
-
 void *plant( void *arg )
 {
     UNUSED( arg );
@@ -57,7 +51,7 @@ void *plant( void *arg )
     OS::TimePoint currentStartTime{};
     OS::TimePoint nextStartTime{};
 
-    const OS::MilliSecond intervalMillis{1000};
+    const OS::MilliSecond intervalMillis{100};
 
     uint32_t aliveCounter = 0;
 

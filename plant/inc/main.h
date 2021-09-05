@@ -7,5 +7,6 @@
 #include "frame.h"
 #include "generic.h"
 #include "packets.h"
+#include "network.h"
 
 #endif
