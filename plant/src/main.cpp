@@ -3,6 +3,8 @@
 
 using namespace OSAL;
 
+OS::Mutex printMutex;
+
 void *server( void *arg )
 {
     UNUSED( arg );
@@ -24,8 +26,8 @@ void *server( void *arg )
     {
         errorNo = insServer->Process();
     } else {}
-   
-    uint16_t cycle = 0;
+
+    uint32_t aliveCounter = 0;
 
     while( errorNo == true )
     {
@@ -38,8 +40,6 @@ void *server( void *arg )
 
             OS::print("[SERVER] Message is received | Message: %d\n", periodicPacket.Data.data1 );
         }
-
-
     }
 
     return 0;
@@ -53,8 +53,10 @@ void *plant( void *arg )
 
     while( true )
     {
-        OS::print("[PLANT] Another Thread Alive Counter : %d\n", aliveCounter++);
-        OS::waitUs(500000);
+        printMutex.Lock();
+        OS::print("[PLANT] Alive Counter: %d\n", aliveCounter++);
+        printMutex.Unlock();
+        OS::waitUs(50000);
     }
 
     return 0;
