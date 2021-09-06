@@ -2,11 +2,18 @@
 
 if [ $1 = 'build' ]
     then
-    #build binaries
     export CC=/usr/bin/clang
     export CXX=/usr/bin/clang++
-    rm -f -r build && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug -G Ninja && ninja && cd ..
-    
+    rm -f -r build
+    rm -f -r install
+    mkdir build
+    mkdir install
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=./../install -G Ninja
+    ninja
+    ninja install
+    cd ..
+
 fi
 
 if [ $1 = 'run' ]
@@ -14,12 +21,12 @@ if [ $1 = 'run' ]
     #run project
     if [ $2 = 'plant' ]
         then
-        cd build && cd plant && ./plant && cd .. / cd ..
+        ./install/bin/plant
     fi
     
     if [ $2 = 'controller' ]
         then
-        cd build && cd controller && ./controller && cd .. / cd ..
+        ./install/bin/controller
     fi
 fi
 
@@ -27,6 +34,7 @@ if [ $1 = 'clean' ]
     then
     #clean build
     rm -f -r build
+    rm -f -r install
 fi
 
 
