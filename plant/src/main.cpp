@@ -51,16 +51,37 @@ void *plant( void *arg )
     OS::TimePoint currentStartTime{};
     OS::TimePoint nextStartTime{};
 
-    const OS::MilliSecond intervalMillis{100};
+    const OS::MilliSecond intervalMillis{1000};
 
     uint32_t aliveCounter = 0;
+
+
+    Control::GaussianDistribution noiseGenerator(10.0f, 2.0f);
+    Control::GaussianDistribution filter(0.0f, 1.0f);
+
+    Control::Decimal noisyValue = noiseGenerator.Random();
+
+    printMutex.Lock();
+    OS::print("[PLANT] Cycle: %d \t Sensor: %.2f \t Mean: %.2f Var: %.2f \t \n", aliveCounter++, noisyValue, filter.m_mean, filter.m_variance);
+    printMutex.Unlock();
 
     while( true )
     {
         currentStartTime = OS::Now();
 
+        noisyValue = noiseGenerator.Random(static_cast<Control::Decimal>(aliveCounter));
+
+        filter.Update(noisyValue, 2.0f);
+
         printMutex.Lock();
-        OS::print("[PLANT] Alive Counter: %d\n", aliveCounter++);
+
+        OS::print("[PLANT] Cycle: %d \t Sensor: %.2f \t Mean: %.2f Var: %.2f \t \n", 
+            aliveCounter++, 
+            noisyValue, 
+            filter.m_mean, 
+            filter.m_variance
+        );
+
         printMutex.Unlock();
 
         nextStartTime = currentStartTime + intervalMillis;
