@@ -3,11 +3,12 @@
 
 #include "os_socket.h"
 #include "osal.h"
-#include <Eigen/Dense>
+#include "system.h"
 #include "frame.h"
 #include "generic.h"
 #include "packets.h"
 #include "network.h"
 #include "gaussian.h"
+#include <Eigen/Dense>
 
 #endif

@@ -55,14 +55,33 @@ void *plant( void *arg )
 
     uint32_t aliveCounter = 0;
 
+    Control::DynamicSystem dynSystem;
 
+    dynSystem.Define({
+        .a1 = -0.2f,
+        .a2 = 0.97f,
+        .b1 = 0.4f,
+        .b2 = 0.2f
+    });
+    
     Control::GaussianDistribution noiseGenerator(10.0f, 2.0f);
     Control::GaussianDistribution filter(0.0f, 1.0f);
 
     Control::Decimal noisyValue = noiseGenerator.Random();
 
+    Control::Decimal sysResponse;
+
     printMutex.Lock();
-    OS::print("[PLANT] Cycle: %d \t Sensor: %.2f \t Mean: %.2f Var: %.2f \t \n", aliveCounter++, noisyValue, filter.m_mean, filter.m_variance);
+
+    dynSystem.Iterate(1.0f, sysResponse);
+
+    OS::print("[PLANT] Cycle: %d \t Sensor: %.2f \t Mean: %.2f Var: %.2f \t System Response: %.2f \t\n",
+    aliveCounter++,
+    noisyValue,
+    filter.m_mean,
+    filter.m_variance,
+    sysResponse);
+
     printMutex.Unlock();
 
     while( true )
@@ -72,14 +91,16 @@ void *plant( void *arg )
         noisyValue = noiseGenerator.Random(static_cast<Control::Decimal>(aliveCounter));
 
         filter.Update(noisyValue, 2.0f);
+        dynSystem.Iterate(1.0f, sysResponse);
 
         printMutex.Lock();
 
-        OS::print("[PLANT] Cycle: %d \t Sensor: %.2f \t Mean: %.2f Var: %.2f \t \n", 
+        OS::print("[PLANT] Cycle: %d \t Sensor: %.2f \t Mean: %.2f Var: %.2f \t System Response: %.2f \t\n", 
             aliveCounter++, 
             noisyValue, 
             filter.m_mean, 
-            filter.m_variance
+            filter.m_variance,
+            sysResponse
         );
 
         printMutex.Unlock();

@@ -1,8 +1,13 @@
+#ifndef _COMMON_GAUSSIAN_H
+#define _COMMON_GAUSSIAN_H
+
 #include "stdint.h"
 
 namespace Control
 {
-    typedef float Decimal;
+    typedef float   Decimal;
+    typedef int32_t Integer;
+    typedef uint8_t Bool;
 
     class GaussianDistribution
     {
@@ -23,3 +28,5 @@ namespace Control
 
     };
 }
+
+#endif
