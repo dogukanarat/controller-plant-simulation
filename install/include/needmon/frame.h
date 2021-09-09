@@ -4,10 +4,11 @@
 #include "consts.h"
 #include "payload.h"
 #include "buffer.h"
+#include "packet.h"
 
 namespace Needmon
 {
-    class Frame : public Payload
+    class Frame
     {
         public:
         Frame()
@@ -21,8 +22,14 @@ namespace Needmon
 
         void Serialize( Buffer& buffer );
         void Parse( Buffer& buffer );
+
+        void Decode(Packet& packet);
+        void Encode(Packet& packet);
+
         void EncodeReset();
         void DecodeReset();
+
+        Payload m_payload;
         
         private:
         uint8_t m_messageId  ;

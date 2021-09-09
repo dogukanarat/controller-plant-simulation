@@ -54,15 +54,16 @@ namespace Needmon
         void Read( float32_t &returnBuffer );
         void Read( float64_t &returnBuffer );
 
-        protected:
         uint8_t m_writeIndex;
         uint8_t m_readIndex;
         uint8_t m_dataCount;
-        uint8_t  m_payloadBuffer[MAX_PAYLOAD_SIZE];
+        uint8_t m_payloadBuffer[MAX_PAYLOAD_SIZE];
 
         void GetDataCount( uint8_t& dataCount );
         void SetDataCount( uint8_t& dataCount );
-        void ResetBuffer();     
+        void EncodeReset();
+        void DecodeReset();  
+        void Reset();  
         void WriteToBuffer( byteConnector_t &converter, uint8_t byteCount );
         void ReadFromBuffer( byteConnector_t &converter, uint8_t byteCount );
     };

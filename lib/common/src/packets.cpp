@@ -2,32 +2,30 @@
 
 using namespace Packets;
 
-Periodic::Periodic()
+void PlantOut::Encode(Needmon::Payload& payload)
 {
-
-}
-
-Periodic::~Periodic()
-{
+    payload.EncodeReset();
     
+    payload.Write( noisySignal );
 }
 
-void Periodic::Encode(Needmon::Frame &frame)
+void PlantOut::Decode(Needmon::Payload& payload)
 {
-    frame.EncodeReset();
+    payload.EncodeReset();
+
+    payload.Read( noisySignal );
+}
+
+void ControllerOut::Encode(Needmon::Payload& payload)
+{
+    payload.EncodeReset();
     
-    frame.Write( Data.data1 );
-    frame.Write( Data.data2 );
-    frame.Write( Data.data3 );
-    frame.Write( Data.data4 );
+    payload.Write( filteredSignal );
 }
 
-void Periodic::Decode(Needmon::Frame &frame)
+void ControllerOut::Decode(Needmon::Payload& payload)
 {
-    frame.DecodeReset();
+    payload.EncodeReset();
 
-    frame.Read( Data.data1 );
-    frame.Read( Data.data2 );
-    frame.Read( Data.data3 );
-    frame.Read( Data.data4 );
+    payload.Read( filteredSignal );
 }

@@ -4,17 +4,18 @@ using namespace OSAL;
 
 OS::Mutex printMutex;
 
+Needmon::Queue plantInQueue(20);
+Needmon::Queue plantOutQueue(20);
+
 void *server( void *arg )
 {
     UNUSED( arg );
 
     Needmon::Buffer messageBuffer;
-    Needmon::Frame messageFrame;
-    Packets::Periodic periodicPacket;
 
     OS::display("[SERVER] Controller server has been started! ");
 
-    Needmon::Ethernet* insTcp         = new Needmon::TCP("127.0.0.1", 5001);
+    Needmon::Ethernet* insTcp = new Needmon::TCP("127.0.0.1", 5001);
     Needmon::Communication* insServer = new Needmon::Server(insTcp);
 
     Needmon::ErrorNo errorNo = true;
@@ -34,10 +35,24 @@ void *server( void *arg )
 
         if( errorNo == true )
         {
-            messageFrame.Parse(messageBuffer);
-            periodicPacket.Decode(messageFrame);
+            std::shared_ptr<Needmon::Frame> messageFrame(new Needmon::Frame());
 
-            OS::print("[SERVER] Message is received | Message: %d\n", periodicPacket.Data.data1 );
+            // messageFrame->Parse(messageBuffer);
+            // messageFrame->Decode(periodicPacket);
+
+            // OS::print("[SERVER] Message is received | Message: %d\n", periodicPacket.Data.data1 );
+
+            // messageQueue.Push(messageFrame);
+
+        }
+
+        std::shared_ptr<Needmon::Frame> messageFrame;
+
+        plantOutQueue.Pop(messageFrame);
+
+        if( messageFrame != nullptr )
+        {
+
         }
     }
 
@@ -51,59 +66,37 @@ void *plant( void *arg )
     OS::TimePoint currentStartTime{};
     OS::TimePoint nextStartTime{};
 
-    const OS::MilliSecond intervalMillis{1000};
+    const OS::MilliSecond intervalMillis{100};
 
-    uint32_t aliveCounter = 0;
-
-    Control::DynamicSystem dynSystem;
-
-    dynSystem.Define({
-        .a1 = -0.2f,
-        .a2 = 0.97f,
-        .b1 = 0.4f,
-        .b2 = 0.2f
-    });
+    uint32_t timestamp = 0;
     
-    Control::GaussianDistribution noiseGenerator(10.0f, 2.0f);
-    Control::GaussianDistribution filter(0.0f, 1.0f);
+    Control::GaussianDistribution noiseGenerator(0, 1.0f);
 
-    Control::Decimal noisyValue = noiseGenerator.Random();
+    Packets::PlantOut plantOutPacket;
+    Packets::ControllerOut controllerOutPacket;
 
-    Control::Decimal sysResponse;
-
-    printMutex.Lock();
-
-    dynSystem.Iterate(1.0f, sysResponse);
-
-    OS::print("[PLANT] Cycle: %d \t Sensor: %.2f \t Mean: %.2f Var: %.2f \t System Response: %.2f \t\n",
-    aliveCounter++,
-    noisyValue,
-    filter.m_mean,
-    filter.m_variance,
-    sysResponse);
-
-    printMutex.Unlock();
-
+    Control::Decimal noisyValue = 0.0f;
+    
     while( true )
     {
         currentStartTime = OS::Now();
 
-        noisyValue = noiseGenerator.Random(static_cast<Control::Decimal>(aliveCounter));
+        Control::Decimal cosOut = 5.0f * cos( ( 2.0f * M_PI / 180.0f)* (timestamp * 5) );
 
-        filter.Update(noisyValue, 2.0f);
-        dynSystem.Iterate(1.0f, sysResponse);
+        noisyValue = noiseGenerator.Random(static_cast<Control::Decimal>( cosOut ));
+        plantOutPacket.noisySignal = static_cast<float>(noisyValue);
+
+        std::shared_ptr<Needmon::Frame> plantOutMessage(new Needmon::Frame());
+
+        plantOutMessage->Encode( controllerOutPacket );
+
+        plantOutQueue.Push(plantOutMessage);
 
         printMutex.Lock();
-
-        OS::print("[PLANT] Cycle: %d \t Sensor: %.2f \t Mean: %.2f Var: %.2f \t System Response: %.2f \t\n", 
-            aliveCounter++, 
-            noisyValue, 
-            filter.m_mean, 
-            filter.m_variance,
-            sysResponse
-        );
-
+        OS::print("[PLANT] Timestamp: %d \t Clear Signal: %.2f \t Noisy Value: %.2f \n", timestamp, cosOut, noisyValue );
         printMutex.Unlock();
+
+        timestamp++;
 
         nextStartTime = currentStartTime + intervalMillis;
 

@@ -25,9 +25,8 @@ namespace Control
         Eigen::Matrix<Decimal,2,1> m_y;
         Eigen::Matrix<Decimal,2,1> m_x;
 
-        void SetSystem( struct SystemDefinition system );
-        void PrintSystem();
-        void Iterate( Decimal input, Decimal& output );
+        void Define(struct SystemDefinition system);
+        void Iterate(Decimal input, Decimal& output);
         
 
     };

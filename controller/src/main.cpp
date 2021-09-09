@@ -9,7 +9,6 @@ void *client( void *arg )
 
     Needmon::Buffer messageBuffer;
     Needmon::Frame messageFrame;
-    Packets::Periodic periodicPacket;
 
     OS::display("[CLIENT] Controller client has been started! ");
 
@@ -24,15 +23,13 @@ void *client( void *arg )
 
     while( errorNo > 0 )
     {
-        periodicPacket.Data.data1 = periodicPacket.Data.data1 + 1;
 
-        periodicPacket.Encode( messageFrame );
-
-        messageFrame.Serialize( messageBuffer );
+        // messageFrame.Encode( periodicPacket );
+        // messageFrame.Serialize( messageBuffer );
 
         errorNo = insClient->Write(messageBuffer);
 
-        OS::print("[CLIENT] Message is sent | Message : %d \n", periodicPacket.Data.data1);
+        // OS::print("[CLIENT] Message is sent | Message : %d \n", periodicPacket.Data.data1);
 
         OS::waitUs(500000);
     }

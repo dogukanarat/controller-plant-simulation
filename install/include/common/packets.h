@@ -11,23 +11,32 @@ namespace Packets
     typedef float  float32_t;
     typedef double float64_t;
 
-    class Periodic : public Needmon::Packet
+    class PlantOut : public Needmon::Packet
     {
         public:
-        Periodic();
-        ~Periodic();
-        
-        struct DataStruct
-        {
-            uint32_t  data1;
-            uint16_t  data2;
-            float32_t data3;
-            float64_t data4; 
-        } Data;
+        PlantOut() {};
+        ~PlantOut() {};
 
-        virtual void Encode(Needmon::Frame &frame);
-        virtual void Decode(Needmon::Frame &frame);
+        float32_t noisySignal;
+
+        virtual void Encode(Needmon::Payload& payload);
+        virtual void Decode(Needmon::Payload& payload);
     };
+
+    class ControllerOut : public Needmon::Packet
+    {
+        public:
+        ControllerOut() {};
+        ~ControllerOut() {};
+        
+        
+        float32_t filteredSignal;
+        
+
+        virtual void Encode(Needmon::Payload& payload);
+        virtual void Decode(Needmon::Payload& payload);
+    };
+
 
 }
 

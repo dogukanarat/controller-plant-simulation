@@ -10,5 +10,7 @@
 #include "network.h"
 #include "gaussian.h"
 #include <Eigen/Dense>
+#include "queue.h"
+#include "math.h"
 
 #endif
