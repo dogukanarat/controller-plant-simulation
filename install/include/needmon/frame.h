@@ -26,6 +26,8 @@ namespace Needmon
         void Decode(Packet& packet);
         void Encode(Packet& packet);
 
+        friend Frame operator << (Packet&,Frame&);
+
         void EncodeReset();
         void DecodeReset();
 

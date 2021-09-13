@@ -45,7 +45,8 @@ namespace Needmon
         TCP(const char * ipAddress, int portNo) 
         : Ethernet{ ipAddress, portNo}
         {
-        m_serverSocket = OSAL::Socket::_socketStream();
+            m_serverSocket = OSAL::Socket::_socketStream();
+            OSAL::Socket::_controlNonBlocking(m_serverSocket);
         };
 
         ~TCP() {};

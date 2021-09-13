@@ -12,9 +12,5 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 project(controller_plant_simulation)
 
-include_directories(controller)
-include_directories(plant)
-
-add_subdirectory(controller)
-add_subdirectory(plant)
+add_subdirectory(apps)
 add_subdirectory(lib)
