@@ -3,81 +3,127 @@
 
 using namespace OSAL;
 
+#define QUEUE_SIZE 20
+#define RECEIVE_PORT_NO 5002
+#define TRANSMIT_PORT_NO 5001
+#define SOCKET_DELAY_US 100000
+
+Needmon::Queue g_controllerInQueue(QUEUE_SIZE);
+Needmon::Queue g_controllerOutQueue(QUEUE_SIZE);
+
 OS::Mutex printMutex;
-
-Needmon::Queue g_controllerInQueue(20);
-Needmon::Queue g_controllerOutQueue(20);
-
-uint8_t g_isConnected = false;
+OS::Mutex controllerInQueueMutex;
+OS::Mutex controllerOutQueueMutex;
 
 void *client( void *arg )
 {
     UNUSED( arg );
 
-    Needmon::Buffer messageBuffer;
-    Packets::ControllerOut controllerOutPacket;
-    Packets::PlantOut plantOutPacket;
+    Needmon::Buffer         messageBuffer;
+    Packets::ControllerOut  controllerOutPacket;
+    Packets::PlantOut       plantOutPacket;
+    Needmon::ErrorNo        errorNo = true;
+    uint32_t                aliveCounter = 0;
+    Needmon::Ethernet*      insTransmitTcp = nullptr;
+    Needmon::Communication* insClient = nullptr;
 
     OS::display("[CLIENT] Controller client has been started! ");
 
-    Needmon::Ethernet* insTcp         = new Needmon::TCP("127.0.0.1", 5001);
-    Needmon::Communication* insClient = new Needmon::Client(insTcp);
+    insTransmitTcp = new Needmon::TCP("127.0.0.1", TRANSMIT_PORT_NO);
+    insClient      = new Needmon::Client(insTransmitTcp);
 
-    Needmon::ErrorNo errorNo = true;
-
-    errorNo = insClient->Connect();
-
-    if( errorNo == true )
+    do
     {
-        errorNo = insClient->Process();
-        
-    } else {}
+        errorNo = insClient->Connect();
+    } while( errorNo == false );
 
-    uint32_t aliveCounter = 0;
+    OS::print("[CLIENT] Connected\n");
+    
+    errorNo = insClient->Process();
 
     while( errorNo == true )
     {
+        std::shared_ptr<Needmon::Frame> messageFrame;
+
+        controllerOutQueueMutex.Lock();
+        uint8_t queueResult = g_controllerOutQueue.Pop(messageFrame).IsFailed();
+        controllerOutQueueMutex.Unlock();
+
+        if( queueResult == false )
         {
-            errorNo = insClient->Read(messageBuffer);
+            messageFrame->Encode(plantOutPacket);
+            messageFrame->Serialize(messageBuffer);
 
-            if( errorNo == true )
-            {
-                std::shared_ptr<Needmon::Frame> messageFrame(new Needmon::Frame());
+            errorNo = insClient->Write(messageBuffer);
 
-                messageFrame->Parse(messageBuffer);
-                messageFrame->Decode(plantOutPacket);
-                
-                while( false == printMutex.TryLock());
-                OS::print("[CLIENT] Message is received | Message: %d\n");
-                printMutex.Unlock();
-
-                if( g_controllerInQueue.Push(messageFrame).IsFailed() == false )
-                {
-
-                } else {}
-
-            } else {}
-        }
-
-        {
-            std::shared_ptr<Needmon::Frame> messageFrame;
-
-            if( g_controllerOutQueue.Pop(messageFrame).IsFailed() == false )
-            {
-                messageFrame->Encode(controllerOutPacket);
-                messageFrame->Serialize(messageBuffer);
-
-                errorNo = insClient->Write(messageBuffer);
-                
-                while( false == printMutex.TryLock());
-                OS::print("[SERVER] Message is transmitted | Message: %d\n");
-                printMutex.Unlock();
-                
-
-            } else {}
-        }    
+            printMutex.Lock();
+            OS::print("[CLIENT] Message is transmitted | Message: %d\n", aliveCounter);
+            printMutex.Unlock();
+        } else {}
+        
+        OS::waitUs(SOCKET_DELAY_US);
     }
 
+    return 0;
+}
+
+void *server( void *arg )
+{
+    UNUSED( arg );
+
+    Needmon::Buffer         messageBuffer;
+    Packets::ControllerOut  controllerOutPacket;
+    Packets::PlantOut       plantOutPacket;
+    Needmon::ErrorNo        errorNo = true;
+    uint32_t                aliveCounter = 0;
+    Needmon::Ethernet*      insReceiveTcp;
+    Needmon::Communication* insServer;
+
+
+    OS::display("[SERVER] Controller server has been started! ");
+
+    insReceiveTcp  = new Needmon::TCP("localhost", RECEIVE_PORT_NO);
+    insServer      = new Needmon::Server(insReceiveTcp);
+
+    do
+    {
+        errorNo = insServer->Connect();
+    } while( errorNo == false);
+
+    errorNo = insServer->Process();
+    
+    OS::display("[SERVER] Controller server has been connected to the client! ");
+
+    while( errorNo == true )
+    {
+        errorNo = insServer->Read(messageBuffer);
+
+        if( errorNo == true )
+        {
+            std::shared_ptr<Needmon::Frame> messageFrame(new Needmon::Frame());
+
+            messageFrame->Parse(messageBuffer);
+            messageFrame->Decode(controllerOutPacket);
+
+            printMutex.Lock();
+            OS::print("[SERVER] Message is received | Message: %d\n", aliveCounter);
+            printMutex.Unlock();
+
+            controllerInQueueMutex.Lock();
+            uint8_t queueResult = g_controllerInQueue.Push(messageFrame).IsFailed();
+            controllerInQueueMutex.Unlock();
+
+            if( queueResult == false )
+            {
+
+            } else {}
+
+        } else {}
+        
+        OS::waitUs(SOCKET_DELAY_US);
+
+    }
+    
     return 0;
 }
 
@@ -88,7 +134,7 @@ void *controller( void *arg )
     OS::TimePoint currentStartTime{};
     OS::TimePoint nextStartTime{};
 
-    const OS::MilliSecond intervalMillis{100};
+    const OS::MilliSecond intervalMillis{1000};
 
     uint32_t timestamp = 0;
 
@@ -96,9 +142,9 @@ void *controller( void *arg )
     {
         currentStartTime = OS::Now();
 
-        while( false == printMutex.TryLock());
-        OS::print("[CONTROLLER] Timestamp : %d\n", timestamp);
-        printMutex.Unlock();
+        // printMutex.Lock()
+        // OS::print("[CONTROLLER] Timestamp : %d\n", timestamp);
+        // printMutex.Unlock();
 
         std::shared_ptr<Needmon::Frame> plantOutMessage(new Needmon::Frame());
 
@@ -127,6 +173,7 @@ int main()
      * 
      */
     OS::thread_t thread_client;
+    OS::thread_t thread_server;
     OS::thread_t thread_controller;
     
 
@@ -135,6 +182,7 @@ int main()
      * 
      */
     OS::create( &thread_client, client );
+    OS::create( &thread_server, server );
     OS::create( &thread_controller, controller );
     
 
@@ -143,6 +191,7 @@ int main()
      * 
      */
     OS::join( thread_client );
+    OS::join( thread_server );
     OS::join( thread_controller );
   
     return 0;
