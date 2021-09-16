@@ -8,5 +8,7 @@
 #include "generic.h"
 #include "packets.h"
 #include "queue.h"
+#include "gaussian.h"
+#include "network.h"
 
 #endif

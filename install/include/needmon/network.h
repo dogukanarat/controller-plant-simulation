@@ -1,7 +1,7 @@
-
 #include "stdint.h"
 #include "os_socket.h"
 #include "buffer.h"
+#include "os_stream.h"
 
 namespace Needmon
 {
@@ -25,6 +25,12 @@ namespace Needmon
         void (*m_receiveHandler)(uint8_t*,uint32_t) = nullptr;
     };
 
+    typedef enum
+    {
+        ETHERNET_UDP,
+        ETHERNET_TCP,
+    } EthernetProtocol;
+
     class Ethernet
     {
         public:
@@ -33,6 +39,7 @@ namespace Needmon
         uint16_t m_portNo;
         char* m_ipAddress;
         int m_serverSocket;
+        EthernetProtocol m_protocol;
         OSAL::Socket::host_t* m_host;
         OSAL::Socket::address_in_t* m_serverSocketAddress;
         OSAL::Socket::length_t m_serverLen;
@@ -46,7 +53,7 @@ namespace Needmon
         : Ethernet{ ipAddress, portNo}
         {
             m_serverSocket = OSAL::Socket::_socketStream();
-            OSAL::Socket::_controlNonBlocking(m_serverSocket);
+            m_protocol = ETHERNET_TCP;
         };
 
         ~TCP() {};
@@ -58,7 +65,8 @@ namespace Needmon
         UDP(const char * ipAddress, int portNo) 
         : Ethernet{ ipAddress, portNo}
         {
-        m_serverSocket = 0;
+            m_serverSocket = OSAL::Socket::_socketDgram();
+            m_protocol = ETHERNET_UDP;
         };
 
         ~UDP() {};
