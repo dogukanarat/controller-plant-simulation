@@ -55,9 +55,9 @@ void *server(void *arg)
 
         if (errorNo == true)
         {
-            printMutex.Lock();
-            OS::print("[SERVER] Message is transmitted | Message: %d\n", transmitCounter++);
-            printMutex.Unlock();
+            // printMutex.Lock();
+            // OS::print("[SERVER] Message is transmitted | Message: %d\n", transmitCounter++);
+            // printMutex.Unlock();
         }
         else
         {
@@ -71,9 +71,9 @@ void *server(void *arg)
             plantInMessage.Parse(messageBuffer);
             plantInQueueMutex.Unlock();
 
-            printMutex.Lock();
-            OS::print("[SERVER] Message is received | Message: %d\n", receiveCounter++);
-            printMutex.Unlock();
+            // printMutex.Lock();
+            // OS::print("[SERVER] Message is received | Message: %d\n", receiveCounter++);
+            // printMutex.Unlock();
         }
         else
         {
@@ -106,6 +106,7 @@ void *plant(void *arg)
     Packets::ControllerOut controllerOutPacket;
 
     Control::Decimal noisyValue = 0.0f;
+    Control::Decimal filteredValue = 0.0f;
 
     connectionMutex.Lock();
 
@@ -125,13 +126,11 @@ void *plant(void *arg)
         plantInMessage.Decode(controllerOutPacket);
         plantInQueueMutex.Unlock();
 
-        // printMutex.Lock();
-        // OS::print("[PLANT] Timestamp: %d \t Clear Signal: %.2f \t Noisy Value: %.2f \t\n", timestamp, cosOut, noisyValue );
-        // printMutex.Unlock();
+        filteredValue = controllerOutPacket.filteredSignal;
 
-        // printMutex.Lock();
-        // OS::print("[CONTROLLER] Timestamp: %d TEST \t\n");
-        // printMutex.Unlock();
+        printMutex.Lock();
+        OS::print("[PLANT] Timestamp: %d \t Clear Signal: %.2f \t Noisy Value: %.2f \t Filtered Value: %.2f \t\n", timestamp, cosOut, noisyValue, filteredValue);
+        printMutex.Unlock();
 
         timestamp++;
 

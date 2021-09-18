@@ -22,8 +22,6 @@ void *client(void *arg)
 {
     UNUSED(arg);
 
-    connectionMutex.Lock();
-
     Needmon::Buffer messageBuffer;
     Needmon::ErrorNo errorNo = true;
     Needmon::Ethernet *insProtocol = nullptr;
@@ -56,9 +54,9 @@ void *client(void *arg)
             controllerInMessage.Parse(messageBuffer);
             controllerInQueueMutex.Unlock();
 
-            printMutex.Lock();
-            OS::print("[SERVER] Message is received | Message: %d\n", receiveCounter++);
-            printMutex.Unlock();
+            // printMutex.Lock();
+            // OS::print("[SERVER] Message is received | Message: %d\n", receiveCounter++);
+            // printMutex.Unlock();
         }
         else
         {
@@ -72,9 +70,9 @@ void *client(void *arg)
         
         if (errorNo == true)
         {
-            printMutex.Lock();
-            OS::print("[SERVER] Message is transmitted | Message: %d\n", transmitCounter++);
-            printMutex.Unlock();
+            // printMutex.Lock();
+            // OS::print("[SERVER] Message is transmitted | Message: %d\n", transmitCounter++);
+            // printMutex.Unlock();
         }
         else
         {
@@ -103,35 +101,29 @@ void *controller(void *arg)
     Packets::ControllerOut controllerOutPacket;
 
     Control::Decimal noisyValue = 0.0f;
-
-    connectionMutex.Lock();
+    Control::Decimal filteredValue = 0.0f;
 
     while (true)
     {
         currentStartTime = OS::Now();
 
-        printMutex.Lock();
-        OS::print("[CONTROLLER] Timestamp : %d\n", timestamp);
-        printMutex.Unlock();
-
-
         controllerInQueueMutex.Lock();
-        controllerInMessage.Encode(plantOutPacket);
+        controllerInMessage.Decode(plantOutPacket);
         controllerInQueueMutex.Unlock();
-
-        controllerOutQueueMutex.Lock();
-        controllerOutMessage.Decode(controllerOutPacket);
-        controllerOutQueueMutex.Unlock();
 
         noisyValue = plantOutPacket.noisySignal;
 
-        // printMutex.Lock();
-        // OS::print("[PLANT] Timestamp: %d \t Noisy Value: %.2f \t\n", timestamp, noisyValue );
-        // printMutex.Unlock();
+        filteredValue = noisyValue / 2;
 
-        // printMutex.Lock();
-        // OS::print("[CONTROLLER] Timestamp: %d TEST t\n");
-        // printMutex.Unlock();
+        controllerOutPacket.filteredSignal = filteredValue;
+
+        controllerOutQueueMutex.Lock();
+        controllerOutMessage.Encode(controllerOutPacket);
+        controllerOutQueueMutex.Unlock();
+
+        printMutex.Lock();
+        OS::print("[CONTROLLER] Timestamp: %d \t Noisy Value: %.2f \t Filtered Value: %.2f \t\n", timestamp, noisyValue, filteredValue);
+        printMutex.Unlock();
 
         timestamp++;
 
