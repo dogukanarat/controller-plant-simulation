@@ -7,7 +7,8 @@
 #include "frame.h"
 #include "generic.h"
 #include "packets.h"
-#include "network.h"
+#include "ethernet_client.h"
+#include "ethernet_server.h"
 #include "gaussian.h"
 #include <Eigen/Dense>
 #include "queue.h"

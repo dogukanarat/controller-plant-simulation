@@ -5,12 +5,18 @@ if [ $1 = 'build' ]
     export CC=/usr/bin/clang
     export CXX=/usr/bin/clang++
     rm -f -r build
-    rm -f -r install
     mkdir build
-    mkdir install
     cd build
     cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=./../install -G Ninja
     ninja
+    cd ..
+fi
+
+if [ $1 = 'install' ]
+    then
+    rm -f -r install
+    mkdir install
+    cd build
     ninja install
     cd ..
 
@@ -21,12 +27,12 @@ if [ $1 = 'run' ]
     #run project
     if [ $2 = 'plant' ]
         then
-        ./install/bin/plant
+        ./build/apps/plant/plant
     fi
     
     if [ $2 = 'controller' ]
         then
-        ./install/bin/controller
+        ./build/apps/controller/controller
     fi
 fi
 

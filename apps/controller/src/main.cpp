@@ -32,19 +32,20 @@ void *client(void *arg)
 
     OS::display("[CLIENT] Controller client has been started! ");
 
-    insProtocol = new Needmon::UDP("127.0.0.1", TRANSMIT_PORT_NO);
+    insProtocol = new Needmon::TCP("127.0.0.1", TRANSMIT_PORT_NO);
     insClient = new Needmon::Client(insProtocol);
 
     do
     {
         errorNo = insClient->Connect();
+        OS::waitUs(SOCKET_DELAY_US);
     } while (errorNo == false);
 
     OS::display("[CLIENT] Connected!");
 
     errorNo = insClient->Process();
 
-    while (errorNo == true)
+    while (true)
     {
 
         controllerOutQueueMutex.Lock();
@@ -53,9 +54,9 @@ void *client(void *arg)
         
         errorNo = insClient->Write(messageBuffer);
 
-        printMutex.Lock();
-        OS::print("[CLIENT] Message is transmitted | Message: %d\n", aliveCounter++);
-        printMutex.Unlock();
+        // printMutex.Lock();
+        // OS::print("[CLIENT] Message is transmitted | Message: %d\n", aliveCounter++);
+        // printMutex.Unlock();
 
 
         OS::waitUs(SOCKET_DELAY_US);
@@ -76,7 +77,7 @@ void *server(void *arg)
 
     OS::display("[SERVER] Controller server has been started! ");
 
-    insProtocol = new Needmon::UDP("127.0.0.1", RECEIVE_PORT_NO);
+    insProtocol = new Needmon::TCP("127.0.0.1", RECEIVE_PORT_NO);
     insServer = new Needmon::Server(insProtocol);
 
     do
@@ -98,9 +99,9 @@ void *server(void *arg)
             controllerInMessage.Parse(messageBuffer);
             controllerInQueueMutex.Unlock();
 
-            printMutex.Lock();
-            OS::print("[SERVER] Message is received | Message: %d\n", aliveCounter++);
-            printMutex.Unlock();
+            // printMutex.Lock();
+            // OS::print("[SERVER] Message is received | Message: %d\n", aliveCounter++);
+            // printMutex.Unlock();
         }
         else
         {
@@ -151,13 +152,13 @@ void *controller(void *arg)
 
         noisyValue = plantOutPacket.noisySignal;
 
-        printMutex.Lock();
-        OS::print("[PLANT] Timestamp: %d \t Noisy Value: %.2f \t\n", timestamp, noisyValue );
-        printMutex.Unlock();
+        // printMutex.Lock();
+        // OS::print("[PLANT] Timestamp: %d \t Noisy Value: %.2f \t\n", timestamp, noisyValue );
+        // printMutex.Unlock();
 
-        printMutex.Lock();
-        OS::print("[CONTROLLER] Timestamp: %d TEST t\n");
-        printMutex.Unlock();
+        // printMutex.Lock();
+        // OS::print("[CONTROLLER] Timestamp: %d TEST t\n");
+        // printMutex.Unlock();
 
         timestamp++;
 

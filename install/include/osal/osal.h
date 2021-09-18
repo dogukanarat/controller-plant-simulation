@@ -1,3 +1,6 @@
+#ifndef _OSAL_H
+#define _OSAL_H
+
 #include "os_memory.h"
 #include "os_thread.h"
 #include "os_stream.h"
@@ -16,3 +19,5 @@ namespace OSAL
     , public ThChrono
     { };
 }
+
+#endif
