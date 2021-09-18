@@ -18,54 +18,6 @@ OS::Mutex plantInQueueMutex;
 OS::Mutex plantOutQueueMutex;
 OS::Mutex connectionMutex;
 
-void *client(void *arg)
-{
-    UNUSED(arg);
-
-    connectionMutex.Lock();
-
-    Needmon::Buffer messageBuffer;
-    Needmon::ErrorNo errorNo = true;
-    uint32_t aliveCounter = 0;
-    Needmon::Ethernet *insProtocol = nullptr;
-    Needmon::Communication *insClient = nullptr;
-
-    OS::display("[CLIENT] Plant client has been started! ");
-
-    insProtocol = new Needmon::TCP("127.0.0.1", TRANSMIT_PORT_NO);
-    insClient = new Needmon::Client(insProtocol);
-
-    do
-    {
-        errorNo = insClient->Connect();
-        OS::waitUs(SOCKET_DELAY_US);
-    } while (errorNo == false);
-
-    OS::display("[CLIENT] Connected!");
-
-    connectionMutex.Unlock();
-
-    errorNo = insClient->Process();
-
-    while (true)
-    {
-
-        plantOutQueueMutex.Lock();
-        plantOutMessage.Serialize(messageBuffer);
-        plantOutQueueMutex.Unlock();
-
-        errorNo = insClient->Write(messageBuffer);
-
-        // printMutex.Lock();
-        // OS::print("[CLIENT] Message is transmitted | Message: %d\n", aliveCounter++);
-        // printMutex.Unlock();
-
-        OS::waitUs(SOCKET_DELAY_US);
-    }
-
-    return 0;
-}
-
 void *server(void *arg)
 {
     UNUSED(arg);
@@ -73,9 +25,11 @@ void *server(void *arg)
     Needmon::Buffer messageBuffer;
     Packets::PlantOut plantOutPacket;
     Needmon::ErrorNo errorNo = true;
-    uint32_t aliveCounter = 0;
     Needmon::Ethernet *insProtocol = nullptr;
     Needmon::Communication *insServer = nullptr;
+    uint32_t receiveCounter = 0;
+    uint32_t transmitCounter = 0;
+
 
     OS::display("[SERVER] Plant server has been started! ");
 
@@ -93,6 +47,22 @@ void *server(void *arg)
 
     while (true)
     {
+        plantOutQueueMutex.Lock();
+        plantOutMessage.Serialize(messageBuffer);
+        plantOutQueueMutex.Unlock();
+
+        errorNo = insServer->Write(messageBuffer);
+
+        if (errorNo == true)
+        {
+            printMutex.Lock();
+            OS::print("[SERVER] Message is transmitted | Message: %d\n", transmitCounter++);
+            printMutex.Unlock();
+        }
+        else
+        {
+        }
+
         errorNo = insServer->Read(messageBuffer);
 
         if (errorNo == true)
@@ -101,13 +71,15 @@ void *server(void *arg)
             plantInMessage.Parse(messageBuffer);
             plantInQueueMutex.Unlock();
 
-            // printMutex.Lock();
-            // OS::print("[SERVER] Message is received | Message: %d\n", aliveCounter++);
-            // printMutex.Unlock();
+            printMutex.Lock();
+            OS::print("[SERVER] Message is received | Message: %d\n", receiveCounter++);
+            printMutex.Unlock();
         }
         else
         {
         }
+
+
 
         OS::waitUs(SOCKET_DELAY_US);
     }
@@ -179,7 +151,6 @@ int main()
      * 
      */
     OS::thread_t thread_server;
-    OS::thread_t thread_client;
     OS::thread_t thread_plant;
 
     /**
@@ -187,7 +158,6 @@ int main()
      * 
      */
     OS::create(&thread_server, server);
-    OS::create(&thread_client, client);
     OS::create(&thread_plant, plant);
 
     /**
@@ -195,7 +165,6 @@ int main()
      * 
      */
     OS::join(thread_server);
-    OS::join(thread_client);
     OS::join(thread_plant);
 
     return 0;

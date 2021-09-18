@@ -26,9 +26,10 @@ void *client(void *arg)
 
     Needmon::Buffer messageBuffer;
     Needmon::ErrorNo errorNo = true;
-    uint32_t aliveCounter = 0;
     Needmon::Ethernet *insProtocol = nullptr;
     Needmon::Communication *insClient = nullptr;
+    uint32_t receiveCounter = 0;
+    uint32_t transmitCounter = 0;
 
     OS::display("[CLIENT] Controller client has been started! ");
 
@@ -47,51 +48,7 @@ void *client(void *arg)
 
     while (true)
     {
-
-        controllerOutQueueMutex.Lock();
-        controllerOutMessage.Serialize(messageBuffer); 
-        controllerOutQueueMutex.Unlock();
-        
-        errorNo = insClient->Write(messageBuffer);
-
-        // printMutex.Lock();
-        // OS::print("[CLIENT] Message is transmitted | Message: %d\n", aliveCounter++);
-        // printMutex.Unlock();
-
-
-        OS::waitUs(SOCKET_DELAY_US);
-    }
-
-    return 0;
-}
-
-void *server(void *arg)
-{
-    UNUSED(arg);
-
-    Needmon::Buffer messageBuffer;
-    Needmon::ErrorNo errorNo = true;
-    uint32_t aliveCounter = 0;
-    Needmon::Ethernet *insProtocol = nullptr;
-    Needmon::Communication *insServer = nullptr;
-
-    OS::display("[SERVER] Controller server has been started! ");
-
-    insProtocol = new Needmon::TCP("127.0.0.1", RECEIVE_PORT_NO);
-    insServer = new Needmon::Server(insProtocol);
-
-    do
-    {
-        errorNo = insServer->Connect();
-    } while (errorNo == false);
-
-    errorNo = insServer->Process();
-
-    OS::display("[SERVER] Connected!");
-
-    while (true)
-    {
-        errorNo = insServer->Read(messageBuffer);
+        errorNo = insClient->Read(messageBuffer);
 
         if (errorNo == true)
         {
@@ -99,9 +56,25 @@ void *server(void *arg)
             controllerInMessage.Parse(messageBuffer);
             controllerInQueueMutex.Unlock();
 
-            // printMutex.Lock();
-            // OS::print("[SERVER] Message is received | Message: %d\n", aliveCounter++);
-            // printMutex.Unlock();
+            printMutex.Lock();
+            OS::print("[SERVER] Message is received | Message: %d\n", receiveCounter++);
+            printMutex.Unlock();
+        }
+        else
+        {
+        }
+
+        controllerOutQueueMutex.Lock();
+        controllerOutMessage.Serialize(messageBuffer); 
+        controllerOutQueueMutex.Unlock();
+        
+        errorNo = insClient->Write(messageBuffer);
+        
+        if (errorNo == true)
+        {
+            printMutex.Lock();
+            OS::print("[SERVER] Message is transmitted | Message: %d\n", transmitCounter++);
+            printMutex.Unlock();
         }
         else
         {
@@ -178,7 +151,6 @@ int main()
      * 
      */
     OS::thread_t thread_client;
-    OS::thread_t thread_server;
     OS::thread_t thread_controller;
 
     /**
@@ -186,7 +158,6 @@ int main()
      * 
      */
     OS::create(&thread_client, client);
-    OS::create(&thread_server, server);
     OS::create(&thread_controller, controller);
 
     /**
@@ -194,7 +165,6 @@ int main()
      * 
      */
     OS::join(thread_client);
-    OS::join(thread_server);
     OS::join(thread_controller);
 
     return 0;
