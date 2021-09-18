@@ -7,6 +7,7 @@
 #include "os_timer.h"
 #include "os_mutex.h"
 #include "os_chrono.h"
+#include "os_socket.h"
 
 namespace OSAL
 {
@@ -17,6 +18,7 @@ namespace OSAL
     , public Timer
     , public Mutex
     , public ThChrono
+    , public Socket
     { };
 }
 

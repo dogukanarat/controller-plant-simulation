@@ -4,7 +4,7 @@
 #include "stdint.h"
 #include "os_socket.h"
 #include "buffer.h"
-#include "os_stream.h"
+#include "osal.h"
 #include "communication.h"
 
 namespace Needmon
