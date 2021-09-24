@@ -7,21 +7,25 @@ using namespace OSAL;
 #define TRANSMIT_PORT_NO 5002
 #define SOCKET_DELAY_US 100000
 
-Needmon::Message plantOutMessage;
-Needmon::Message plantInMessage;
 
-OS::Mutex printMutex;
-OS::Mutex plantInQueueMutex;
-OS::Mutex plantOutQueueMutex;
-OS::Mutex connectionMutex;
+static struct 
+{
+    Needmon::Message plantOutMessage;
+    Needmon::Message plantInMessage;
+    OS::Mutex plantInMessageMutex;
+    OS::Mutex plantOutMessageMutex;
+    OS::Mutex printMutex;
+    Needmon::Topic testTopic;
+} GL;
 
-Needmon::Topic testTopic;
+
+
 
 void TestCallBack(Needmon::Message &message)
 {
-    printMutex.Lock();
+    GL.printMutex.Lock();
     OS::print("[PLANT] Callback is called! \n");
-    printMutex.Unlock();
+    GL.printMutex.Unlock();
 }
 
 void *server(void *arg)
@@ -41,7 +45,7 @@ void *server(void *arg)
     insProtocol = new Needmon::TCP("127.0.0.1", RECEIVE_PORT_NO);
     insServer = new Needmon::Server(insProtocol);
 
-    testTopic.Publish(plantOutMessage);
+    GL.testTopic.Publish(GL.plantOutMessage);
 
     do
     {
@@ -54,9 +58,9 @@ void *server(void *arg)
 
     while (true)
     {
-        plantOutQueueMutex.Lock();
-        plantOutMessage.Serialize(messageBuffer);
-        plantOutQueueMutex.Unlock();
+        GL.plantOutMessageMutex.Lock();
+        GL.plantOutMessage.Serialize(messageBuffer);
+        GL.plantOutMessageMutex.Unlock();
 
         errorNo = insServer->Write(messageBuffer);
 
@@ -74,9 +78,9 @@ void *server(void *arg)
 
         if (errorNo == true)
         {
-            plantInQueueMutex.Lock();
-            plantInMessage.Parse(messageBuffer);
-            plantInQueueMutex.Unlock();
+            GL.plantInMessageMutex.Lock();
+            GL.plantInMessage.Parse(messageBuffer);
+            GL.plantInMessageMutex.Unlock();
 
             // printMutex.Lock();
             // OS::print("[SERVER] Message is received | Message: %d\n", receiveCounter++);
@@ -96,7 +100,7 @@ void *plant(void *arg)
 {
     UNUSED(arg);
 
-    testTopic.Subscribe(TestCallBack);
+    GL.testTopic.Subscribe(TestCallBack);
 
     OS::waitUs(SOCKET_DELAY_US);
 
@@ -115,8 +119,6 @@ void *plant(void *arg)
     Control::Decimal noisyValue = 0.0f;
     Control::Decimal filteredValue = 0.0f;
 
-    connectionMutex.Lock();
-
     while (true)
     {
         currentStartTime = OS::Now();
@@ -125,19 +127,19 @@ void *plant(void *arg)
         noisyValue = noiseGenerator.Random(static_cast<Control::Decimal>(cosOut));
         plantOutPacket.noisySignal = static_cast<float>(noisyValue);
 
-        plantOutQueueMutex.Lock();
-        plantOutMessage.Encode(plantOutPacket);
-        plantOutQueueMutex.Unlock();
+        GL.plantOutMessageMutex.Lock();
+        GL.plantOutMessage.Encode(plantOutPacket);
+        GL.plantOutMessageMutex.Unlock();
 
-        plantInQueueMutex.Lock();
-        plantInMessage.Decode(controllerOutPacket);
-        plantInQueueMutex.Unlock();
+        GL.plantInMessageMutex.Lock();
+        GL.plantInMessage.Decode(controllerOutPacket);
+        GL.plantInMessageMutex.Unlock();
 
         filteredValue = controllerOutPacket.filteredSignal;
 
-        printMutex.Lock();
+        GL.printMutex.Lock();
         OS::print("[PLANT] Timestamp: %d \t Clear Signal: %.2f \t Noisy Value: %.2f \t Filtered Value: %.2f \t\n", timestamp, cosOut, noisyValue, filteredValue);
-        printMutex.Unlock();
+        GL.printMutex.Unlock();
 
         timestamp++;
 

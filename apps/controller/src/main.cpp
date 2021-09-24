@@ -7,13 +7,15 @@ using namespace OSAL;
 #define TRANSMIT_PORT_NO 5001
 #define SOCKET_DELAY_US 100000
 
-Needmon::Message controllerOutMessage;
-Needmon::Message controllerInMessage;
-
-OS::Mutex printMutex;
-OS::Mutex controllerInQueueMutex;
-OS::Mutex controllerOutQueueMutex;
-OS::Mutex connectionMutex;
+static struct 
+{
+    Needmon::Message controllerOutMessage;
+    Needmon::Message controllerInMessage;
+    OS::Mutex controllerInMessageMutex;
+    OS::Mutex controllerOutMessageMutex;
+    OS::Mutex printMutex;
+    OS::Mutex connectionMutex;
+} GL;
 
 void *client(void *arg)
 {
@@ -47,9 +49,9 @@ void *client(void *arg)
 
         if (errorNo == true)
         {
-            controllerInQueueMutex.Lock();
-            controllerInMessage.Parse(messageBuffer);
-            controllerInQueueMutex.Unlock();
+            GL.controllerInMessageMutex.Lock();
+            GL.controllerInMessage.Parse(messageBuffer);
+            GL.controllerInMessageMutex.Unlock();
 
             // printMutex.Lock();
             // OS::print("[SERVER] Message is received | Message: %d\n", receiveCounter++);
@@ -59,9 +61,9 @@ void *client(void *arg)
         {
         }
 
-        controllerOutQueueMutex.Lock();
-        controllerOutMessage.Serialize(messageBuffer);
-        controllerOutQueueMutex.Unlock();
+        GL.controllerOutMessageMutex.Lock();
+        GL.controllerOutMessage.Serialize(messageBuffer);
+        GL.controllerOutMessageMutex.Unlock();
 
         errorNo = insClient->Write(messageBuffer);
 
@@ -104,9 +106,9 @@ void *controller(void *arg)
     {
         currentStartTime = OS::Now();
 
-        controllerInQueueMutex.Lock();
-        controllerInMessage.Decode(plantOutPacket);
-        controllerInQueueMutex.Unlock();
+        GL.controllerInMessageMutex.Lock();
+        GL.controllerInMessage.Decode(plantOutPacket);
+        GL.controllerInMessageMutex.Unlock();
 
         noisyValue = plantOutPacket.noisySignal;
 
@@ -114,13 +116,13 @@ void *controller(void *arg)
 
         controllerOutPacket.filteredSignal = filteredValue;
 
-        controllerOutQueueMutex.Lock();
-        controllerOutMessage.Encode(controllerOutPacket);
-        controllerOutQueueMutex.Unlock();
+        GL.controllerOutMessageMutex.Lock();
+        GL.controllerOutMessage.Encode(controllerOutPacket);
+        GL.controllerOutMessageMutex.Unlock();
 
-        printMutex.Lock();
+        GL.printMutex.Lock();
         OS::print("[CONTROLLER] Timestamp: %d \t Noisy Value: %.2f \t Filtered Value: %.2f \t\n", timestamp, noisyValue, filteredValue);
-        printMutex.Unlock();
+        GL.printMutex.Unlock();
 
         timestamp++;
 
