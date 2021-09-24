@@ -4,3 +4,6 @@
 [submodule "lib/osal"]
 	path = lib/osal
 	url = https://github.com/dogukanarat/osal.git
+[submodule "lib/googletest"]
+	path = lib/googletest
+	url = https://github.com/google/googletest
