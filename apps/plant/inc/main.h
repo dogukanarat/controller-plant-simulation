@@ -11,5 +11,6 @@
 #include <ethernet_server.h>
 #include <gaussian.h>
 #include <math.h>
+#include <topic.h>
 
 #endif

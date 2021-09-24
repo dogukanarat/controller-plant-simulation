@@ -15,6 +15,15 @@ OS::Mutex plantInQueueMutex;
 OS::Mutex plantOutQueueMutex;
 OS::Mutex connectionMutex;
 
+Needmon::Topic testTopic;
+
+void TestCallBack(Needmon::Message &message)
+{
+    printMutex.Lock();
+    OS::print("[PLANT] Callback is called! \n");
+    printMutex.Unlock();
+}
+
 void *server(void *arg)
 {
     UNUSED(arg);
@@ -31,6 +40,8 @@ void *server(void *arg)
 
     insProtocol = new Needmon::TCP("127.0.0.1", RECEIVE_PORT_NO);
     insServer = new Needmon::Server(insProtocol);
+
+    testTopic.Publish(plantOutMessage);
 
     do
     {
@@ -84,6 +95,8 @@ void *server(void *arg)
 void *plant(void *arg)
 {
     UNUSED(arg);
+
+    testTopic.Subscribe(TestCallBack);
 
     OS::waitUs(SOCKET_DELAY_US);
 

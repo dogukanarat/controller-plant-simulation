@@ -4,7 +4,7 @@
 
 using namespace Control;
 
-void DynamicSystem::Define(struct SystemDefinition system )
+void DynamicSystem::Define(struct SystemDefinition system)
 {
     m_a << system.a1, system.a2, 0, 0;
     m_b << system.b1, system.b2, 1, 0;
@@ -14,13 +14,13 @@ void DynamicSystem::Define(struct SystemDefinition system )
     m_y << 0, 0;
 }
 
-void DynamicSystem::Iterate(Decimal input, Decimal& output)
+void DynamicSystem::Iterate(Decimal input, Decimal &output)
 {
-    Eigen::Matrix<Decimal,2,1> temp;
+    Eigen::Matrix<Decimal, 2, 1> temp;
 
     temp = m_c * m_x;
 
-    m_x = temp + ( m_d * input );
+    m_x = temp + (m_d * input);
 
     temp = m_b * m_y;
 
