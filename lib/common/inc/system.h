@@ -1,6 +1,6 @@
-#include "stdint.h"
+#include <stdint.h>
 #include <Eigen/Dense>
-#include "gaussian.h"
+#include <gaussian.h>
 
 namespace Control
 {
@@ -14,20 +14,18 @@ namespace Control
 
     class DynamicSystem
     {
-        public:
-        DynamicSystem() {};
-        ~DynamicSystem() {};
-        
+    public:
+        DynamicSystem(){};
+        ~DynamicSystem(){};
+
         Eigen::Matrix2f m_a;
         Eigen::Matrix2f m_b;
         Eigen::Matrix2f m_c;
-        Eigen::Matrix<Decimal,2,1> m_d;
-        Eigen::Matrix<Decimal,2,1> m_y;
-        Eigen::Matrix<Decimal,2,1> m_x;
+        Eigen::Matrix<Decimal, 2, 1> m_d;
+        Eigen::Matrix<Decimal, 2, 1> m_y;
+        Eigen::Matrix<Decimal, 2, 1> m_x;
 
         void Define(struct SystemDefinition system);
-        void Iterate(Decimal input, Decimal& output);
-        
-
+        void Iterate(Decimal input, Decimal &output);
     };
 }

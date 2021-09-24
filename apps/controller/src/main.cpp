@@ -7,11 +7,8 @@ using namespace OSAL;
 #define TRANSMIT_PORT_NO 5001
 #define SOCKET_DELAY_US 100000
 
-Needmon::Queue g_controllerInQueue(QUEUE_SIZE);
-Needmon::Queue g_controllerOutQueue(QUEUE_SIZE);
-
-Needmon::Frame controllerOutMessage;
-Needmon::Frame controllerInMessage;
+Needmon::Message controllerOutMessage;
+Needmon::Message controllerInMessage;
 
 OS::Mutex printMutex;
 OS::Mutex controllerInQueueMutex;
@@ -26,8 +23,8 @@ void *client(void *arg)
     Needmon::ErrorNo errorNo = true;
     Needmon::Ethernet *insProtocol = nullptr;
     Needmon::Communication *insClient = nullptr;
-    uint32_t receiveCounter = 0;
-    uint32_t transmitCounter = 0;
+    UInt32 receiveCounter = 0;
+    UInt32 transmitCounter = 0;
 
     OS::display("[CLIENT] Controller client has been started! ");
 
@@ -63,11 +60,11 @@ void *client(void *arg)
         }
 
         controllerOutQueueMutex.Lock();
-        controllerOutMessage.Serialize(messageBuffer); 
+        controllerOutMessage.Serialize(messageBuffer);
         controllerOutQueueMutex.Unlock();
-        
+
         errorNo = insClient->Write(messageBuffer);
-        
+
         if (errorNo == true)
         {
             // printMutex.Lock();
@@ -97,8 +94,8 @@ void *controller(void *arg)
 
     uint32_t timestamp = 0;
 
-    Packets::PlantOut plantOutPacket;
-    Packets::ControllerOut controllerOutPacket;
+    Messages::PlantOut plantOutPacket;
+    Messages::ControllerOut controllerOutPacket;
 
     Control::Decimal noisyValue = 0.0f;
     Control::Decimal filteredValue = 0.0f;

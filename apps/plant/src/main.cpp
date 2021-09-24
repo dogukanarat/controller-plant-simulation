@@ -7,11 +7,8 @@ using namespace OSAL;
 #define TRANSMIT_PORT_NO 5002
 #define SOCKET_DELAY_US 100000
 
-Needmon::Queue g_plantInQueue(QUEUE_SIZE);
-Needmon::Queue g_plantOutQueue(QUEUE_SIZE);
-
-Needmon::Frame plantOutMessage;
-Needmon::Frame plantInMessage;
+Needmon::Message plantOutMessage;
+Needmon::Message plantInMessage;
 
 OS::Mutex printMutex;
 OS::Mutex plantInQueueMutex;
@@ -23,13 +20,12 @@ void *server(void *arg)
     UNUSED(arg);
 
     Needmon::Buffer messageBuffer;
-    Packets::PlantOut plantOutPacket;
+    Messages::PlantOut plantOutPacket;
     Needmon::ErrorNo errorNo = true;
     Needmon::Ethernet *insProtocol = nullptr;
     Needmon::Communication *insServer = nullptr;
-    uint32_t receiveCounter = 0;
-    uint32_t transmitCounter = 0;
-
+    UInt32 receiveCounter = 0;
+    UInt32 transmitCounter = 0;
 
     OS::display("[SERVER] Plant server has been started! ");
 
@@ -79,8 +75,6 @@ void *server(void *arg)
         {
         }
 
-
-
         OS::waitUs(SOCKET_DELAY_US);
     }
 
@@ -102,8 +96,8 @@ void *plant(void *arg)
 
     Control::GaussianDistribution noiseGenerator(0, 1.0f);
 
-    Packets::PlantOut plantOutPacket;
-    Packets::ControllerOut controllerOutPacket;
+    Messages::PlantOut plantOutPacket;
+    Messages::ControllerOut controllerOutPacket;
 
     Control::Decimal noisyValue = 0.0f;
     Control::Decimal filteredValue = 0.0f;

@@ -1,5 +1,5 @@
 #include "gaussian.h"
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <time.h>
 #include <math.h>
 
@@ -11,8 +11,8 @@ using namespace Control;
 
 void GaussianDistribution::Update(Decimal mean, Decimal variance)
 {
-    m_mean = ( (mean * m_variance + m_mean * variance) / (variance + m_variance) );
-    m_variance = ( ( variance * m_variance ) / ( variance + m_variance ) );
+    m_mean = ((mean * m_variance + m_mean * variance) / (variance + m_variance));
+    m_variance = ((variance * m_variance) / (variance + m_variance));
 }
 
 void GaussianDistribution::Reset(Decimal mean, Decimal variance)
@@ -23,12 +23,12 @@ void GaussianDistribution::Reset(Decimal mean, Decimal variance)
 
 Decimal GaussianDistribution::Random()
 {
-    srand( (unsigned)time( NULL ) );
+    srand((unsigned)time(NULL));
 
-    Decimal R1 = (Decimal)rand()/(Decimal)RAND_MAX;
-    Decimal R2 = (Decimal)rand()/(Decimal)RAND_MAX;
+    Decimal R1 = (Decimal)rand() / (Decimal)RAND_MAX;
+    Decimal R2 = (Decimal)rand() / (Decimal)RAND_MAX;
 
-    return m_mean + m_variance * cos( 2 * M_PI * R1) * sqrt(-log(R2) * 2);
+    return m_mean + m_variance * cos(2 * M_PI * R1) * sqrt(-log(R2) * 2);
 }
 
 Decimal GaussianDistribution::Random(Decimal actual)
@@ -41,4 +41,3 @@ Decimal GaussianDistribution::GetMaxima()
 {
     return m_mean;
 }
-
