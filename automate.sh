@@ -12,6 +12,11 @@ if [ $1 = 'build' ]
     cd ..
 fi
 
+if [ $1 = 'update' ]
+    then
+    git submodule update --remote --recursive
+fi
+
 if [ $1 = 'install' ]
     then
     rm -f -r install
@@ -19,7 +24,6 @@ if [ $1 = 'install' ]
     cd build
     ninja install
     cd ..
-
 fi
 
 if [ $1 = 'run' ]

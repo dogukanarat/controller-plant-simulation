@@ -7,6 +7,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
 
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
-target_link_libraries(controller PUBLIC common osal Eigen3::Eigen)
+target_link_libraries(controller PRIVATE common osal Eigen3::Eigen)
 
 install(TARGETS controller)
