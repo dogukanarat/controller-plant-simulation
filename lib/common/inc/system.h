@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <Eigen/Dense>
-#include <gaussian.h>
+#include "gaussian.h"
 
 namespace Control
 {
